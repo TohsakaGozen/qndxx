@@ -39,16 +39,16 @@ let loginInfo = {
     username: '软件工程2020级3班团支部'
 }
 let reqStage = axios.create({
-    baseURL: 'http://dxx.scyol.com/backend/stages',
+    baseURL: 'https://dxx.scyol.com/backend/stages',
     timeout: 60000
 });
 
 let reqDxxPeople = axios.create({
-    baseURL: 'http://dxx.scyol.com/backend/study/student',
+    baseURL: 'https://dxx.scyol.com/backend/study/student',
     timeout: 60000
 });
 let login = axios.create({
-    baseURL: 'http://dxx.scyol.com/backend/adminUser',
+    baseURL: 'https://dxx.scyol.com/backend/adminUser',
     timeout: 10000,
     headers: { 'Content-Type': 'application/json' }
 });
