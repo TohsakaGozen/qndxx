@@ -1,6 +1,34 @@
-const { Bot, Message } = require('mirai-js');
-const bot = new Bot();
+const { segment } = require('koishi')
 const axios = require('axios')
+const url = 'http://m.qpic.cn/psc?/V51QYEn34X1RJ92SjrrY0cjKjO0LNH76/ruAMsa53pVQWN7FLK88i5ux8BEVluXkDoXEvYtCmLMTl1SzDdmv.oTI50M**lJMp4T2KHWkHRBlfH01wgcAzlKVnaTFdkb0lZdrF.9KksM4!/b&bo=OAQkAjgEJAIBByA!&rf=viewer_4'
+
+
+function apply(ctx) {
+    ctx.middleware((session, next) => {
+        if (session.guildId === '1109825279' && session.elements[0].attrs.content == "课程" || session.elements[0].attrs.content == "课程表") {
+            session.send(segment.image(url)).then(() => { session.send("课程表已发送") })
+            console.log("课表已发送")
+        }
+        if ((session.userId === '1679124358' || session.userId === '1405169388' || session.userId === '2226724107') && session.elements[0].attrs.content == "课程") {
+            session.send(segment.image(url)).then(() => { session.send("课程表已发送") })
+            console.log("课表已发送")
+        }
+        if ((session.userId === '1679124358' || session.userId === '1405169388') && session.elements[0].attrs.content == "青年大学习") {
+            reqUnDoPeople(session, 0)
+
+        }
+        if ((session.userId === '1679124358' || session.userId === '1405169388') && session.elements[0].attrs.content == "青年大学习1") {
+            reqUnDoPeople(session, 1)
+
+        }
+        return next()
+    })
+}
+
+module.exports = {
+    name: 'plugin-my-plugin',
+    apply
+}
 
 let classMates = ['钱银', '温国庆', '王秋松', '刘文杰', '蒲鹏鑫', '赵川东', '曾小犊', '杨宇', '李梓铭', '杨洲华', '符向豪', '李伟', '邹涛', '叶林斌', '梁宏', '杨承熹', '方鹏', '潘思哲', '李明洋', '罗仁杰', '邵文杰', '谢可', '崔傑瑜', '汪俊安', '肖洋', '李雅博',
     '蒋翰林',
@@ -55,7 +83,7 @@ let login = axios.create({
 
 
 
-const reqUnDoPeople = function () {
+const reqUnDoPeople = function (session, t) {
     login({
         url: `/login`, method: 'post', data: loginInfo
     }).then((result) => {
@@ -98,7 +126,13 @@ const reqUnDoPeople = function () {
                         undo.push(person)
                     }
                 })
-                sendUndoPeople(undo)
+                if (t == 0) {
+                    sendUndoPeople(undo, session)
+                }
+                else {
+                    sendUndoPeople1(undo, session)
+                }
+
             })
 
         })
@@ -106,66 +140,13 @@ const reqUnDoPeople = function () {
 }
 
 
-const sendUndoPeople = async function (undo) {
-
-
-    await bot.sendMessage({
-        // 群号
-        group: '309449161',
-        // 是 http server 接口所需的原始格式，若提供则优先使用
-        message: [
-            { type: 'Plain', text: `@全体成员 未作青年大学习的名单为：${undo}。。！      请以上同学加紧时间做哦` }
-        ],
-    });
-    console.log("青年大学校已发送")
+const sendUndoPeople = async function (undo, session) {
+    text = `还未完成青年大学习的名单为：${undo}          ！      请以上同学加紧时间做哦~~`
+    session.bot.internal.sendGroupMsg('309449161', text).then(() => { session.send("青年大学习信息已发送到班群").then(() => { console.log("青年大学习已发送") }) }, (err) => { session.send(`错误原因为：${err}，发送失败`) })
 
 }
 
-
-
-const sendCourseList = async function () {
-    console.log("课程表已发送")
-    await bot.sendMessage({
-        // 群号
-        group: '1109825279',
-        // 是 http server 接口所需的原始格式，若提供则优先使用
-        message: [
-            { type: 'Plain', text: '课程' },
-            { type: 'Image', url: 'http://m.qpic.cn/psc?/V51QYEn34X1RJ92SjrrY0cjKjO0LNH76/ruAMsa53pVQWN7FLK88i5rN9bpwqnGaI0S6aWwR6Gn.u4ifG0JJFkA8SqDDA6xWMa99DvPDfnNmEJFEROx8b..Kn6u0qSQcIYMJ5PvYlsFI!/b&bo=egWAAlwHXAMBCdc!&rf=viewer_4' },
-        ],
-    });
-    console.log("课程表已发送")
+const sendUndoPeople1 = async function (undo, session) {
+    text = `还未完成青年大学习的名单为：${undo}          ！      请监督以上同学加紧时间做哦~~`
+    session.send(text).catch(err => { session.send(`错误原因为：${err}，发送失败`) })
 }
-
-
-const handleGroupMessage = function () {
-
-    bot.on('GroupMessage', async data => {
-        console.log(111)
-        if (data.messageChain[1].text == "课程" || data.messageChain[1].text == "课程表") {
-            sendCourseList()
-        }
-    });
-    bot.on('FriendMessage', async data => {
-        console.log(222)
-        if (data.sender.id == 1679124358 || data.sender.id == 1405169388) {
-            if (data.messageChain[1].text == '青年大学习')
-                reqUnDoPeople()
-        }
-    });
-}
-const Link = async function () {
-    // 连接到一个 mirai-api-http 服务
-    await bot.open({
-        baseUrl: 'http://localhost:8080',
-        verifyKey: "INITKEYpff86IGV",
-        // 要绑定的 qq，须确保该用户已在 mirai-console 登录
-        qq: 2118654642,
-    });
-    handleGroupMessage()
-    console.log("mirai.js已启动")
-}
-
-Link()
-
-
