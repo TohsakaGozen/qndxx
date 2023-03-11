@@ -17,7 +17,7 @@ function apply(ctx) {
             reqUnDoPeople(session, 0)
 
         }
-        if ((session.userId === '1679124358' || session.userId === '1405169388') && session.elements[0].attrs.content == "青年大学习1") {
+        if ((session.userId === '1405169388' || session.userId === '1679124358') && session.elements[0].attrs.content == "青年大学习1") {
             reqUnDoPeople(session, 1)
 
         }
@@ -143,6 +143,7 @@ const reqUnDoPeople = function (session, t) {
 const sendUndoPeople = async function (undo, session) {
     text = `还未完成青年大学习的名单为：${undo}          ！      请以上同学加紧时间做哦~~`
     session.bot.internal.sendGroupMsg('309449161', text).then(() => { session.send("青年大学习信息已发送到班群").then(() => { console.log("青年大学习已发送") }) }, (err) => { session.send(`错误原因为：${err}，发送失败`) })
+
 
 }
 
